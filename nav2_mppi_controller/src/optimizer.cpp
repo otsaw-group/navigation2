@@ -26,6 +26,8 @@
 
 #include "nav2_costmap_2d/costmap_filters/filter_values.hpp"
 
+#define DEBUG
+
 namespace mppi
 {
 
@@ -136,6 +138,10 @@ geometry_msgs::msg::TwistStamped Optimizer::evalControl(
   const geometry_msgs::msg::Twist & robot_speed,
   const nav_msgs::msg::Path & plan, nav2_core::GoalChecker * goal_checker)
 {
+  #ifdef DEBUG
+  auto start_time = std::chrono::high_resolution_clock::now();
+  #endif
+
   prepare(robot_pose, robot_speed, plan, goal_checker);
 
   do {
@@ -148,6 +154,12 @@ geometry_msgs::msg::TwistStamped Optimizer::evalControl(
   if (settings_.shift_control_sequence) {
     shiftControlSequence();
   }
+
+  #ifdef DEBUG
+  auto end_time = std::chrono::high_resolution_clock::now();
+  std::chrono::duration<double, std::milli> duration = end_time - start_time;
+  std::cout << "Optimizer: " << duration.count() << " ms" << std::endl;
+  #endif
 
   return control;
 }
